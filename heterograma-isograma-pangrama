@@ -1,0 +1,56 @@
+#Posible solucion al ejercicio 62 de https://retosdeprogramacion.com/ejercicios/
+# Crea 3 funciones, cada una encargada de detectar si una cadena de
+# * texto es un heterograma, un isograma o un pangrama.
+# * - Debes buscar la definición de cada uno de estos términos.
+
+import unicodedata
+import re
+
+def contador_letras(texto):
+    
+    #Creamos el diccionario
+    diccionario = dict()
+    
+    '''Normalizamos el texto: ->
+    1º lo pasamos a minusculas
+    2º descomponemos caracteres acentuados ('NFKD')
+    3º codificamos para ignorar los caracteres NO ASCII
+    4º volvemos a string normal en UTF-8'''
+    texto = unicodedata.normalize('NFKD', texto.lower()).encode('ASCII', 'ignore').decode('utf-8')
+    '''
+    eliminamos numeros \d 
+    eliminamos simbolos, signos de puntuacion, espacios y guiones bajos \W_
+    '''
+    texto = re.sub(r'[\d\W_]', '', texto)
+    
+    for c in texto:
+        if c in diccionario.keys():
+            diccionario[c] += 1
+        else:
+            diccionario[c] = 1
+            
+    return diccionario
+
+def histograma(texto):
+    
+    for letra in contador_letras(texto).values():
+        if letra > 1:
+            return False
+    return True
+
+def isograma(texto):
+    
+    #Hallamos el valor inicial del contador de letras
+    valor_inicial = next(iter(contador_letras(texto).values()))
+    
+    #Comparamos todos los valores con el valor inicial y si coinciden devolvemos True
+    if all(valor == valor_inicial for valor in contador_letras(texto).values()):
+        return True
+    
+    return False
+
+def pangrama(texto):
+    #Si en el contador de letras no hay el número de letras del abecedario devolvemos False
+    if len(contador_letras(texto)) != 26:
+        return False
+    return True
